@@ -168,6 +168,7 @@
                   this.step++
                 }).then(async () => {
                   await this.$store.dispatch('users/login', this.account)
+                  this.$router.push('/login')
                 })
                 .catch((error) => {
                   console.log(error)
