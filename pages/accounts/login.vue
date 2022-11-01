@@ -24,14 +24,14 @@
             <v-tab-item class="primary">
               <v-divider></v-divider>
               <GeneralCardTitleComponent class="d-flex justify-center white--text text-h5">
-                Entra ahora en Forest
+                Entra ahora en Gestus
               </GeneralCardTitleComponent>
               <v-divider></v-divider>
               <v-card-text>
                 <v-form ref="form">
                   <v-row>
                     <v-col class="col-12">
-                      <FormsFieldsTextComponent v-model="user.username" prepend-inner-icon="mdi-doc"
+                      <FormsFieldsTextComponent v-model="user.username" prepend-inner-icon="ion-ios-document"
                         :rules="[rules.min]" label-color="white--text" label="Documento" type="number" required>
                       </FormsFieldsTextComponent>
                     </v-col>
@@ -44,7 +44,7 @@
                 </v-form>
               </v-card-text>
               <v-card-actions>
-                <v-btn color="secondary" class="secondary white--text rounded-lg font-weight-regular" @click="login()"
+                <v-btn color="secondary" class="secondary black--text rounded-lg font-weight-regular" @click="login()"
                   :loading="loading" large block>
                   Entrar&nbsp;<v-icon>mdi-login</v-icon>
                 </v-btn>
@@ -54,7 +54,7 @@
             <v-tab-item class="primary">
               <v-divider></v-divider>
               <GeneralCardTitleComponent class="d-flex justify-center white--text text-h5">
-                Registrate ahora en Forest
+                Registrate ahora en Gestus
               </GeneralCardTitleComponent>
               <v-divider></v-divider>
               <v-card-text>

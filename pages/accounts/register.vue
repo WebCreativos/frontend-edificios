@@ -12,7 +12,7 @@
           </v-card-title>
           <v-divider></v-divider>
           <GeneralCardTitleComponent class="d-flex justify-center white--text text-h5">
-            Registrate ahora en Forest
+            Registrate ahora en Gestus
           </GeneralCardTitleComponent>
 
           <v-divider></v-divider>

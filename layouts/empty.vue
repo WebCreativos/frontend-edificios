@@ -1,7 +1,7 @@
 <template>
   <v-app dark>
-    <v-app-bar app color="primary" elevation="1">
-      <v-toolbar-title>
+    <v-app-bar app color="primary" height="80" elevation="1">
+      <v-toolbar-title class="d-flex justify-center">
         <img height="72" src="/logo.png">
       </v-toolbar-title>
       <v-spacer></v-spacer>

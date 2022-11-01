@@ -4,8 +4,8 @@ export default {
   mode: 'spa',
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: 'Forest Tower - Administracion',
-    title: 'Forest Tower - Administracion',
+    titleTemplate: 'Gestus360 - Administracion',
+    title: 'Gestus360 - Administracion',
     meta: [{
         charset: 'utf-8'
       },
@@ -26,7 +26,7 @@ export default {
     link: [{
       rel: 'icon',
       type: 'image/x-icon',
-      href: '/logo.pnh'
+      href: '/icon.png'
     }],
   },
 

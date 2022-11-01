@@ -64,7 +64,6 @@
         </template>
 
         <template v-slot:item.in_rent="{ item }">
-          <span class="text-subtitle-1 font-weight-regular">{{item.in_rent}}</span>
           <v-icon size="24" class="mb-1" :color="setColorStatus(item.in_rent)">mdi-circle</v-icon>
         </template>
         <template v-slot:item.actions="{item}">

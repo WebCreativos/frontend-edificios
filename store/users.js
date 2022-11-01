@@ -76,7 +76,7 @@ export const actions = {
   }, {
     type: type
   }) {
-    let email = `${state.user.username}@foresttower.com`
+    let email = `${state.user.username}@gestus.com`
     try {
       const {
         data: data

@@ -114,7 +114,7 @@
 
         let data = {
           sender: {
-            "company": "Forest Tower",
+            "company": "Gestus",
             "address": "23X8+6MJ, Av Chiverta, 20100 Punta del Este",
             "zip": "20100",
             "city": "Punta del este",

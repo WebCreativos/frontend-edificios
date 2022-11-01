@@ -115,7 +115,7 @@
                     {{data.expenses_cost}}</p>
                 </v-col>
                 <v-col class="col-12">
-                  <v-btn color="secondary rounded-lg font-weight-regular" block class="text-capitalize">
+                  <v-btn color="secondary rounded-lg black--text font-weight-regular" block class="text-capitalize">
                     CONTACTAR&nbsp; <v-icon color="white">ion-ios-send</v-icon>
                   </v-btn>
                 </v-col>
@@ -130,7 +130,7 @@
         <v-card-title>
           Alquileres
           <v-spacer></v-spacer>
-          <v-btn v-if="!readOnly" color="secondary white--text rounded-lg font-weight-black"
+          <v-btn v-if="!readOnly" color="secondary black--text rounded-lg font-weight-black"
             @click="openRentalForm=!openRentalForm">
             AGREGAR NUEVO ALQUILER
           </v-btn>
@@ -139,7 +139,7 @@
         <v-card-text v-if="openRentalForm">
           <RentalsFormComponent>
             <template v-slot:actions>
-              <v-btn color="secondary white--text rounded-lg font-weight-black" @click="addNewRental()">
+              <v-btn color="secondary black--text rounded-lg font-weight-black" @click="addNewRental()">
                 AGREGAR ALQUILER
               </v-btn>
             </template>

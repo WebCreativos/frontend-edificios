@@ -37,7 +37,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text-color="white" height="40" elevation="5"
-            class="secondary white--text rounded-lg font-weight-regular" @click="validBuilding()">
+            class="secondary rounded-lg black--text font-weight-regular" @click="validBuilding()">
             <span>Siguiente</span>
             <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
@@ -74,11 +74,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn fab color="yellow" small class="white--text rounded-lg mr-3" @click="step--">
+          <v-btn fab color="yellow" small class="rounded-lg mr-3 black--text" @click="step--">
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
           <v-btn text-color="white" height="40" elevation="5"
-            class="secondary white--text rounded-lg font-weight-regular" :loading="loading" @click="validAccount()">
+            class="secondary rounded-lg black--text  font-weight-regular" :loading="loading" @click="validAccount()">
             Guardar
             <v-icon>mdi-save</v-icon>
           </v-btn>
@@ -114,7 +114,7 @@
           location: 'Maldonado'
         },
 
-        step: 2,
+        step: 1,
         valid: true,
         name: '',
         loading: false,

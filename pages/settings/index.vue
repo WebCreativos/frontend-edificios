@@ -103,7 +103,7 @@
             <v-card-text>
               <v-form ref="form">
                 <v-row>
-                  <v-col class="col-12 col-md-10">
+                  <v-col class="col-12 col-md-9">
                     <v-row>
                       <v-col class="col-md-4 col-12">
                         <formsFieldsTextComponent label="CI" v-model="user.username"></formsFieldsTextComponent>
@@ -117,7 +117,7 @@
                       </v-col>
                     </v-row>
                   </v-col>
-                  <v-col class="col-12 col-md-2">
+                  <v-col class="col-12 col-md-3">
                     <v-btn color="secondary" class="mt-8 rounded-lg" large @click="addUser()">Guardar usuario</v-btn>
                   </v-col>
                 </v-row>

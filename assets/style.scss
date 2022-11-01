@@ -112,10 +112,12 @@ body {
       }
     }
     .active-tab {
-      background: #03a9f4 !important;
+      background: #ffca40 !important;
       border-radius: 10px;  
       color:black!important;
-        
+      span {
+        color:black!important;
+      }
     }
     @media  (min-width: 720px) {
       .v-tab{
