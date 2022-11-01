@@ -5,7 +5,7 @@
     </GeneralCardTitleComponent>
     <v-card-text class="my-3">
       <v-row>
-        <v-col class="col-md-6 col-12">
+        <v-col class="col-md-12 col-12">
           <GeneralCardMiniComponent>
             <template v-slot:title>
               $ {{inPayments}}
@@ -26,7 +26,7 @@
 
           </GeneralCardMiniComponent>
         </v-col>
-        <v-col class="col-md-12 col-12">
+        <v-col class="col-md-6 col-12">
           <GeneralCardMiniComponent color="orange">
             <template v-slot:title>
               $ {{pendingPayments}}
@@ -78,31 +78,31 @@
         return this.$store.getters['accounting/getList'] || {}
       },
       inPayments() {
-        if(!this.payments.data) return
+        if(!this.payments.data) return 0
         let inPayments =this.payments.data.filter((p)=>{
-          return p.attributes.type == 'expenses'  && p.attributes.status == 'payed'
+          return p.type == 'expenses'  && p.status == 'payed'
         }).reduce((acc, curr)=>{
-          return acc + curr.attributes.amount
+          return acc + curr.amount
         },0)
         console.log(inPayments)
         return inPayments
       },
       outPayments() {
-        if(!this.payments.data) return
+        if(!this.payments.data) return 0
         let inPayments =this.payments.data.filter((p)=>{
-          return p.attributes.type == 'suppliers'
+          return p.type == 'suppliers'
         }).reduce((acc, curr)=>{
-          return acc + curr.attributes.amount
+          return acc + curr.amount
         },0)
         console.log(inPayments)
         return inPayments
       },
       pendingPayments() {
-        if(!this.payments.data) return
+        if(!this.payments.data) return 0
         let inPayments =this.payments.data.filter((p)=>{
-          return p.attributes.type != 'suppliers' && p.attributes.status == 'pending'
+          return p.type != 'suppliers' && p.status == 'pending'
         }).reduce((acc, curr)=>{
-          return acc + curr.attributes.amount
+          return acc + curr.amount
         },0)
         console.log(inPayments)
         return inPayments

@@ -37,8 +37,7 @@ export const actions = {
       }
     })
     commit('set', {
-      ...data.data[0].attributes,
-      id: data.data[0].id
+      ...data.data[0]
     })
   },
   async create({

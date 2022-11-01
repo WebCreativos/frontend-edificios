@@ -15,7 +15,7 @@
         <v-col class="col-md-3 col-12 mt-3" v-for="(file,index) in filesList" :key="`f${index}`">
           <v-card class="rounded-lg">
             <v-card-title>
-              <span v-if="file.attributes.name">{{file.attributes.name.substr(0,7)}}</span>
+              <span v-if="file.name">{{file.name.substr(0,7)}}</span>
               <v-spacer></v-spacer>
               <v-btn fab x-small color="red" @click="deleteImg(file)">
                 <v-icon class="white--text">mdi-close</v-icon>
@@ -23,7 +23,7 @@
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text class="d-flex justify-center">
-              <template v-if="checkIfImage(file.attributes)">
+              <template v-if="checkIfImage(file)">
                 <v-img :src="getUrl(file)" width="100%" height="80" contain></v-img>
               </template>
               <template v-else>
@@ -31,8 +31,8 @@
               </template>
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-actions style="height:55" v-show="file.attributes.url">
-              <v-btn block depressed :href="`https://king-prawn-app-o25h2.ondigitalocean.app`+file.url" target="_blank"
+            <v-card-actions style="height:55" v-show="file.url">
+              <v-btn block depressed :href="getUrl(file)" target="_blank"
                 class="rounded-lg" color="success darken-1">
                 VER ARCHIVO&nbsp;
                 <v-icon>mdi-magnify</v-icon>
@@ -50,7 +50,7 @@
   export default {
     name: 'DragAndDropPhotoCard',
     props: {
-      value: Object,
+      value: Array,
       readonly: {
         default: false,
         type: Boolean
@@ -64,10 +64,11 @@
     mounted() {},
     methods: {
       getUrl(file) {
-        if (file.attributes.url) {
-          return `https://king-prawn-app-o25h2.ondigitalocean.app${file.attributes.url}`
-        } else {
-          return URL.createObjectURL(file.attributes);
+        if(file.url)  {
+          return file.url
+        }
+         else {
+          return URL.createObjectURL(file);
         }
       },
       selectPhoto(event) {
@@ -75,16 +76,9 @@
       },
       onFileChange(e) {
         var files = e.target.files || e.dataTransfer.files
-        console.log(files)
         if (!files.length)
           return
-        this.$emit('input', {
-          data: [...this.value.data || [], ...[...files].map((f) => {
-            return {
-              attributes: f
-            }
-          })]
-        })
+        this.$emit('input', [...this.value || [], ...[...files]])
       },
       deleteImg(file) {
         var temporalValue = this.value
@@ -95,7 +89,7 @@
             this.$axios.delete('/upload/files/' + file.id)
           }
           this.$emit('input', {
-            data: temporalValue.data.filter(f => f !== file)
+            data: temporalValue.filter(f => f !== file)
           })
         }
 
@@ -119,11 +113,12 @@
     },
     computed: {
       filesList() {
-        if (this.value.data != null) {
-          return this.value.data.filter((file) => {
-            if (file.attributes instanceof File) {
+        if (this.value != null) {
+          console.log(this.value)
+          return this.value.filter((file) => {
+            if (file instanceof File) {
               return file
-            } else if (Object.keys(file.attributes).length) {
+            } else if (Object.keys(file).length) {
               return file
             }
           })

@@ -4,12 +4,14 @@ import {
 } from 'vuex-map-fields';
 var qs = require('qs');
 export const state = {
-  zones: {},
+  zones: {
+    data:[]
+  },
   areaReservations: {},
   zone: {
-      name:'',
-      capacity:1,
-      rules:[]
+    name: '',
+    capacity: 1,
+    rules: []
   }
 }
 
@@ -43,11 +45,20 @@ export const actions = {
         })
       }
     })
-    commit('set', data.data[0].attributes)
+    commit('set', data.data[0])
   },
   async findAll({
     commit
-  },params) {
+  }, params = {}) {
+    if (params.filters) {
+      params.filters.building = this.$auth.user.building.id
+    } else {
+      params.filters = {
+        building: this.$auth.user.building.id
+      }
+    }
+
+
     const {
       data: data
     } = await this.$axios.get('/zones/?populate=rules.rule', {
@@ -62,7 +73,7 @@ export const actions = {
   },
   async findAllReservations({
     commit
-  },params) {
+  }, params) {
     const {
       data: data
     } = await this.$axios.get('/area-reservations', {
@@ -82,15 +93,23 @@ export const actions = {
     commit,
     state
   }) {
-    await this.$axios.post(`/zones/?populate=rules.rule`, {data:state.zone})
+    var buldingId = this.$auth.user.building.id
+    await this.$axios.post(`/zones/?populate=rules.rule`, {
+      data: {
+        ...state.zone,
+        building: buldingId
+      }
+    })
   },
   async addReservation({
     commit,
     state
-  },params) {
+  }, params) {
     const {
       data: data
-    } = await this.$axios.post(`/area-reservations`, {data:params})
+    } = await this.$axios.post(`/area-reservations`, {
+      data: params
+    })
     commit('setSingleReservation', data.data)
   },
   async delete({
@@ -104,14 +123,20 @@ export const actions = {
   },
   setRule({
     commit,
-  },rule){
-    commit('setRule',rule)
+  }, rule) {
+    commit('setRule', rule)
   },
+  removeRule({
+    commit,
+  }, index) {
+    commit('removeRule', index)
+  },
+
   clear({
     commit
   }) {
     commit('set', {
-      rules:[]
+      rules: []
     })
   }
 }
@@ -121,8 +146,11 @@ export const mutations = {
   set(state, zone) {
     state.zone = zone
   },
-  setRule(state,rule){
+  setRule(state, rule) {
     state.zone.rules.push(rule)
+  },
+  removeRule(state, index) {
+    state.zone.rules.splice(index, 1)
   },
   setSingleReservation(state, reservation) {
     state.areaReservations.data.push(reservation)

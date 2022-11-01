@@ -9,7 +9,7 @@
       <v-row no-gutters class="justify-left align-center" v-show="!hiddenheader">
         <v-col class="col-xl-3 col-lg-4 col-md-5 mb-3 mb-sm-0 d-flex justify-center d-sm-inline">
           <v-progress-circular size="200" width="17" color="primary" :value="60" rotate="270">
-            <v-progress-circular size="160" width="17" color="red" :value="40" rotate="270"
+            <v-progress-circular size="160" width="17" color="red" :value="35" rotate="135"
               class="progress-circular text-h5 font-weight-black">
               <span class="black--text" v-if="data.meta.pagination && rentals.meta.pagination">{{data.meta.pagination.total + rentals.meta.pagination.total}}</span>
             </v-progress-circular>
@@ -53,15 +53,21 @@
             <v-icon size="80">mdi-home</v-icon>
           </div>
         </template>
-        <template v-slot:item.attributes.number="{ item }">
-          Apto {{ item.attributes.number }}
+        <template v-slot:item.number="{ item }">
+          Apto {{ item.number }}
+        </template>
+        <template v-slot:item.expenses_cost="{ item }">
+          {{ item.expenses_currency | currency }} {{ item.expenses_cost }}
+        </template>
+        <template v-slot:item.expenses_payment_method="{ item }">
+          {{ item.expenses_payment_method | paymentMethod }}
         </template>
 
-        <template v-slot:item.attributes.in_rent="{ item }">
-          <span class="text-subtitle-1 font-weight-regular">{{item.status}}</span>
-          <v-icon size="24" class="mb-1" :color="setColorStatus(item.attributes.in_rent)">mdi-circle</v-icon>
+        <template v-slot:item.in_rent="{ item }">
+          <span class="text-subtitle-1 font-weight-regular">{{item.in_rent}}</span>
+          <v-icon size="24" class="mb-1" :color="setColorStatus(item.in_rent)">mdi-circle</v-icon>
         </template>
-        <template v-slot:item.id="{item}">
+        <template v-slot:item.actions="{item}">
           <cardsSinglePropertyComponent :data="item"></cardsSinglePropertyComponent>
         </template>
       </v-data-table>
@@ -77,6 +83,18 @@
 
   export default 
   {
+    filters:{
+      currency(value){
+        return value == 'USD' ? 'US$' : '$'
+      },
+      paymentMethod(value){
+        if(value=='Card') {
+          return 'Tarjeta'
+        } else {
+          return 'Efectivo'
+        }
+      }
+    },
     props: {
       expanded: {
         type: Boolean,
@@ -100,27 +118,31 @@
         page:1,
         headers: [{
           text: '',
+          value: 'id',
+          align: 'center'
+        },{
+          text: '',
           value: 'image',
           align: 'center'
         }, {
           text: 'Numero',
-          value: 'attributes.number',
+          value: 'number',
           align: 'center'
         }, {
           text: 'Habitaciones',
-          value: 'attributes.rooms',
+          value: 'rooms',
           align: 'center'
         },{
-            text: 'Banios',
-            value: 'attributes.bathrooms',
+            text: 'Baños',
+            value: 'bathrooms',
             align: 'center'
           }, {
           text: 'En alquiler',
-          value: 'attributes.in_rent',
+          value: 'in_rent',
           align: 'center'
         }, {
           text: 'Acciones',
-          value: 'id',
+          value: 'actions',
           align: 'center'
         }]
       }
@@ -146,16 +168,16 @@
         var headers = this.headers
         if (this.expanded) {
           var expandedHeaders = [{
-            text: 'Banios',
-            value: 'attributes.bathrooms',
+            text: 'Baños',
+            value: 'bathrooms',
             align: 'center'
           }, {
             text: 'Expensas',
-            value: 'attributes.expenses_cost',
+            value: 'expenses_cost',
             align: 'center'
           }, {
             text: 'Metodo de pago (Expensas)',
-            value: 'attributes.expenses_payment_method',
+            value: 'expenses_payment_method',
             align: 'center'
           }]
           headers.splice(headers.length - 1, 0, ...expandedHeaders)

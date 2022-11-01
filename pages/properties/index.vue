@@ -17,7 +17,7 @@
           </v-card-title>
           <v-divider></v-divider>
           <v-card-text>
-            <cardsPropertiesComponent outlined @changePage="search.pagination.page = $event" :data="data" expanded></cardsPropertiesComponent>
+            <propertiesListComponent outlined @changePage="search.pagination.page = $event" :data="data" expanded></propertiesListComponent>
           </v-card-text>
           <v-divider></v-divider>
         </generalCardComponent>
@@ -32,23 +32,23 @@
       return {
         headers: [{
           text: 'Numero de apartamento',
-          value: 'attributes.number',
+          value: 'number',
           align: 'center'
         }, {
           text: 'En alquiler',
-          value: 'attributes.in_rent',
+          value: 'in_rent',
           align: 'center'
         }, {
           text: 'Habitaciones',
-          value: 'attributes.rooms',
+          value: 'rooms',
           align: 'center'
         }, {
           text: 'Expensas',
-          value: 'attributes.expenses_cost',
+          value: 'expenses_cost',
           align: 'center'
         }, {
           text: 'Metodo de pago (Expensas)',
-          value: 'attributes.expenses_payment_method',
+          value: 'expenses_payment_method',
           align: 'center'
         },{
           text: 'Acciones',

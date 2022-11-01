@@ -1,11 +1,12 @@
 <template>
   <div class="d-flex flex-column">
-    <label class="font-weight-regular mb-2 grey--text text--darken-4 text-uppercase text-subtitle-2">{{label}}</label>
-    <v-text-field outlined class="rounded-lg font-weight-regular" solo ref="input" hide-details v-model="fieldValue" @focus="checkFocus()" v-bind="props">
-      <template v-slot:append>
+    <label class="font-weight-regular mb-2 text-uppercase text-subtitle-2" :class="labelColor">{{label}}</label>
+    <v-text-field class="rounded-lg font-weight-regular" solo ref="input"  hide-details v-model="fieldValue" @focus="checkFocus()" v-bind="props">
+      <template v-slot:append="{item}">
+        <span></span>
         <template v-if="focused">
-          <v-icon v-if="!isValid" class="red--text">mdi-alert-circle</v-icon>
-          <v-icon v-else color="success">mdi-check-circle</v-icon>
+          <v-icon v-if="!isValid" class="yellow">mdi-alert-circle</v-icon>
+          <v-icon v-else color="success">{{item}}</v-icon>
         </template>
       </template>
     </v-text-field>
@@ -17,6 +18,10 @@
     inheritAttrs: false,
     props: {
       value: null,
+      "label-color":{
+        type: String,
+        default: "grey--text text--darken-4"
+      },
       label: {
         type: String,
         default: ''
@@ -24,14 +29,11 @@
     },
     data() {
       return {
-        isValid: null,
         focused:false,
         fieldValue:this.value,
       }
     },
     updated() {
-      console.log(this.$refs.input.validate())
-      this.isValid = this.$refs.input.validate()
     },
     methods: {
       checkFocus() {
@@ -56,6 +58,11 @@
       },
     },
     computed: {
+      isValid(){
+        if(this.$refs.input) {
+          return this.$refs.input.validate()
+        }
+      },
       props() {
         const props = JSON.parse(JSON.stringify(this.$props))
         delete props.value

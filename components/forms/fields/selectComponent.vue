@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-column">
-    <label class="font-weight-regular mb-2 grey--text text--darken-4 text-uppercase text-subtitle-2">{{label}}</label>
-    <v-select outlined class="rounded-lg" solo ref="input" hide-details v-model="fieldValue" @focus="checkFocus()" v-bind="props">
+    <label class="font-weight-regular mb-2 text-uppercase text-subtitle-2" :class="labelColor">{{label}}</label>
+    <v-select class="rounded-lg" solo ref="input" hide-details v-model="fieldValue" @focus="checkFocus()" v-bind="props">
       <template v-slot:append>
         <template v-if="focused">
           <v-icon v-if="!isValid" class="red--text">mdi-alert-circle</v-icon>
@@ -21,6 +21,12 @@
         type: String,
         default: ''
       },
+      "label-color":{
+        type: String,
+        default: "grey--text text--darken-4"
+      },
+
+
     },
     data() {
       return {

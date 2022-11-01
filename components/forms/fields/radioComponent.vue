@@ -12,6 +12,10 @@
 <script>
   export default {
     props: {
+      readonly:{
+        type:Boolean,
+        default:false
+      },
       value: null,
       label: {
         type: String,
@@ -32,6 +36,7 @@
     },
     methods: {
       setClick() {
+        if(this.readonly) return
         this.$refs.checkbox.radioGroup.$emit('change', this.value)
       },
     },

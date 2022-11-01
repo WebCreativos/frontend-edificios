@@ -36,16 +36,16 @@
           value: 'createdAt'
         }, {
           text: 'Tipo',
-          value: 'attributes.type'
+          value: 'type'
         }, {
           text: 'Nombre / Razon social',
-          value: 'attributes.name'
+          value: 'name'
         }, {
           text: 'Moneda',
-          value: 'attributes.currency'
+          value: 'currency'
         }, {
           text: 'Monto',
-          value: 'attributes.amount'
+          value: 'amount'
         }, {
           text: 'Cambiar estado',
           value: 'change_status'

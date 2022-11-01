@@ -29,7 +29,7 @@
                 <v-card-text class="pb-0">
                   <v-row>
                     <v-col class="col-12" v-for="(rule,index) in rules" :key="'r'+index">
-                      <zonesReservationRulesFieldComponent update :value="rule" @input="rules[index]=$event">
+                      <zonesReservationRulesFieldComponent update :value="rule" :index="index" @input="rules[index]=$event">
                       </zonesReservationRulesFieldComponent>
                     </v-col>
                   </v-row>
@@ -73,6 +73,9 @@
       addRule(rule) {
         this.$store.dispatch('zones/setRule',rule)
       },
+      removeRule(index) {
+        this.$store.dispatch('zones/removeRule',index)
+      }
     },
     computed: {
       ...mapFields('zones', [

@@ -13,10 +13,15 @@
         <v-card outlined>
           <v-card-text>
             <v-row>
-              <v-col class="col-12">
-                <formsFieldsSelectComponent v-model="reservation.apartment" item-text="attributes.number"
+              <v-col class="col-12" v-show="!apartment.id">
+                <formsFieldsSelectComponent v-model="reservation.apartment" item-text="number"
                   item-value="id" :items="apartmentsList.data" type="number" label="APARTAMENTO">
                 </formsFieldsSelectComponent>
+              </v-col>
+              <v-col class="col-12">
+                <formsFieldsTextComponent v-model="reservation.persons" item-text="number"
+                  item-value="id" type="number" label="CANTIDAD DE PERSONAS">
+                </formsFieldsTextComponent>
               </v-col>
               <v-col class="col-12">
                 <v-card outlined>
@@ -31,7 +36,7 @@
         </v-card>
       </v-card-text>
       <v-expand-transition hide-on-leave="true">
-        <v-card-text v-show="reservation.date!=null && reservation.apartment != null">
+        <v-card-text>
           <v-card outlined>
             <v-card-text>
               <v-row>
@@ -87,6 +92,7 @@
                     </v-col>
                     <v-col class="col-4 d-flex align-center">
                       <span>LIBRE</span>
+                      
                     </v-col>
                     <v-col class="col-3">
                       <v-btn color="success darken-1" @click="createReservation( {from: '21:00:00.000', to: '22:00:00.000'})"
@@ -104,6 +110,7 @@
                   <v-row v-for="(hour,index) in arrayHourToHour" :key="index" class="border-bottom py-3" no-gutters>
                     <v-col class="col-5 d-flex align-center">
                       <span>{{ hour.from | formatHour }} - {{hour.to | formatHour }}</span>
+                       
                     </v-col>
                     <v-col class="col-4 d-flex align-center">
                       <span>LIBRE</span>
@@ -115,6 +122,7 @@
                       </v-btn>
                       <v-btn color="red darken-1" class="white--text" v-show="checkEmptyReservation(hour)" block
                         depressed>
+                       
                         RESERVAR&nbsp;<v-icon>mdi-calendar</v-icon>
                       </v-btn>
                     </v-col>
@@ -153,15 +161,26 @@
         type: Object,
       },
       value: Boolean,
-      getColorCalendar: Function
+      getColorCalendar: Function,
+      apartment: {
+        type: Object,
+        default: () => ({})
+      }
     },
     data: () => ({
       now: null,
       newReservationModal: false,
-      reservation: {},
+      reservation: {
+        persons:1
+      },
       selectedDate: null,
-      date: null
+      date: null,
     }),
+    created() {
+      if(this.apartment) {
+        this.reservation.apartment = this.apartment.id
+      }
+    },
     mounted() {
       this.now = moment().format("YYYY-MM-DD");
       this.$store.dispatch('apartments/findAll')
@@ -169,14 +188,14 @@
     methods: {
       allowedDates(date) {
         var currentDate = this.now
-        const ruleBeforeTo = this.zone.attributes.rules.find((rule) => rule.rule.data.attributes.type === 'before_to');
+        const ruleBeforeTo = this.zone.rules.find((rule) => rule.rule.type === 'before_to');
         if(ruleBeforeTo) {
-          currentDate = moment().add(ruleBeforeTo.value,ruleBeforeTo.rule.data.attributes.subtype).format("YYYY-MM-DD")
+          currentDate = moment().add(ruleBeforeTo.value,ruleBeforeTo.rule.subtype).format("YYYY-MM-DD")
         }
         return moment(date).isSameOrAfter(currentDate);
       },
       showReservedHours() {
-        this.$store.dispatch("zones/findAllReservations", {
+        this.$store.dispatch("zones/reservations/findAll", {
           filters: {
             date: this.reservation.date,
             zone: this.zone.id
@@ -189,34 +208,39 @@
         this.reservation.zone = this.zone
 
 
-        const rulePrePayment = this.zone.attributes.rules.find((rule) => rule.rule.data.attributes.type === 'prepayment');
-        console.log(rulePrePayment)
+        const rulePrePayment = this.zone.rules.find((rule) => rule.rule.type === 'prepayment');
         if(rulePrePayment) {
           this.reservation.pending_payment = true
         }
+        if(!this.reservation.apartment) {
+          return
+        }
 
-        await this.$store.dispatch("zones/addReservation", this.reservation);
-        this.reservation = {};
+        await this.$store.dispatch("zones/reservations/add", this.reservation);
+        this.reservation = {
+          apartment:this.reservation.apartment,
+          persons:1
+        };
         this.newReservationModal = true;
         this.showReservedHours()
       },
       checkEmptyReservation(hours) {
-        if (!this.reservationList.data || this.zone.attributes == null) return
+        if (!this.reservationList.data || this.zone == null) return
         let reservationList = this.reservationList.data.filter(reservation => {
-          return reservation.attributes.from == hours.from && reservation.attributes.to == hours.to;
+          return reservation.from == hours.from && reservation.to == hours.to;
         })
         let numberOFPeoples = _.sumBy(reservationList, function (o) {
-          return o.attributes.persons;
+          return o.persons;
         });
-        if (numberOFPeoples > this.zone.attributes.capacity) {
+        if (numberOFPeoples > this.zone.capacity) {
           return true;
         }
-        return false
+        return numberOFPeoples
       },
     },
     computed: {
       reservationList() {
-        return this.$store.getters['zones/getReservationList']
+        return this.$store.getters['zones/reservations/getList']
       },
       apartmentsList() {
         return this.$store.getters['apartments/getList']
@@ -233,8 +257,9 @@
         return arrayOfHours;
       },
       reservoirByTurn(){
-        if(!this.zone.attributes) return false
-        return this.zone.attributes.rules.find((rule) => rule.rule.data.attributes.type === 'period') != undefined;
+        console.log(this.zone)
+        if(!this.zone || !this.zone.rules) return false
+        return this.zone.rules.find((rule) => rule.rule.type === 'period') != undefined;
       }
     },
     watch: {

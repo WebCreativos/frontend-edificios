@@ -7,15 +7,21 @@
     <v-card-text class="pa-md-6">
       <v-row>
         <v-col class="col-12 col-sm-6">
-          <formsFieldsTextComponent prepend-inner-icon="mdi-account" v-model="name" label="Nombre del inquilino">
+          <formsFieldsTextComponent prepend-inner-icon="mdi-account" :rules="rules.required" v-model="name" label="Nombre del inquilino">
           </formsFieldsTextComponent>
         </v-col>
         <v-col class="col-12 col-sm-6">
-          <formsFieldsTextComponent prepend-inner-icon="mdi-file" v-model="doc" type="number"
+          <formsFieldsTextComponent prepend-inner-icon="mdi-file" :error-messages="errorUserExists" :rules="rules.required" v-model="username" type="number"
+            @input="checkIfUserExists($event)"
             label="Documento de identidad">
           </formsFieldsTextComponent>
+          <span v-if="errorUserExists.length>0" class="error--text">{{errorUserExists[0]}}</span>
         </v-col>
-        <v-col class="col-12">
+        <v-col class="col-6">
+          <formsFieldsTextComponent prepend-inner-icon="mdi-file"  v-model="phone" type="number" label="Celular/Telefono">
+          </formsFieldsTextComponent>
+        </v-col>
+        <v-col class="col-6">
           <formsFieldsSelectComponent prepend-inner-icon="mdi-file" v-model="warranty_type"
             :items="['Aseguradora','Deposito','Inmueble']" type="number" label="Tipo de garantia">
           </formsFieldsSelectComponent>
@@ -29,12 +35,12 @@
             <v-card-text>
               <v-row>
                 <v-col class="col-md-6">
-                  <formsFieldsTextComponent prepend-inner-icon="mdi-calendar" type="date" v-model="start_date"
+                  <formsFieldsTextComponent prepend-inner-icon="mdi-calendar" :rules="rules.required" type="date" v-model="start_date"
                     label="Desde">
                   </formsFieldsTextComponent>
                 </v-col>
                 <v-col class="col-md-6">
-                  <formsFieldsTextComponent prepend-inner-icon="mdi-calendar" type="date" v-model="end_date"
+                  <formsFieldsTextComponent prepend-inner-icon="mdi-calendar" :rules="rules.required" type="date" v-model="end_date"
                     label="Hasta">
                   </formsFieldsTextComponent>
                 </v-col>
@@ -57,11 +63,25 @@
     mapFields
   } from 'vuex-map-fields';
   import moment from 'moment';
+  import usersMixins from '~/plugins/mixins/forms/users.js'
   export default {
-    props: {},
+    mixins: [usersMixins],
+    props: {
+      readOnly: {
+        type: Boolean,
+        default: false
+      },
+    },
     created() {
       this.start_date = moment().format('YYYY-MM-DD');
       this.end_date = moment().add(1, 'year').format('YYYY-MM-DD');
+    },
+    data() {
+      return {
+        rules:{
+          required: [value => !!value || 'Campo requerido'],
+        },
+      }
     },
     computed: {
       ...mapFields('rentals', [
@@ -69,9 +89,11 @@
         'rental.start_date',
         'rental.end_date',
       ]),
-      ...mapFields('habitants', [
-        'habitant.name',
-        'habitant.doc',
+      ...mapFields('rentals', [
+        'user.name',
+        'user.phone',
+        'user.id',
+        'user.username',
       ]),
 
     },

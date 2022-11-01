@@ -1,7 +1,7 @@
 <template>
   <GeneralCardComponent>
     <v-card-title class="text-subtitle-1 font-weight-regular">
-      <formsFieldsTextButtonComponent @click="search($event)" label="Buscar...">
+      <formsFieldsTextButtonComponent @click="search" label="Buscar...">
         <template v-slot:icon>
           <v-icon>mdi-magnify</v-icon>
         </template>
@@ -19,6 +19,10 @@
   export default {
     inheritAttrs: false,
     props: {
+      search:{
+        type: Function,
+        required: true
+      },
       data: {
         type: Object,
         default: {}

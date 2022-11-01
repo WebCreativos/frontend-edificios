@@ -3,11 +3,11 @@
     <v-row>
       <v-col class="col-9">
         <v-row>
-          <v-col :class="(selectedRule.rule.attributes.type=='before_to')?'col-6':'col-12'">
+          <v-col :class="(selectedRule.rule.type=='before_to')?'col-6':'col-12'">
             <FormsFieldsSelectComponent class="rounded-r-0" label="Regla" return-object :filled="update" :readonly="update" v-model="selectedRule.rule"
-              :items="items" item-value="id" item-text="attributes.name"></FormsFieldsSelectComponent>
+              :items="items" item-value="id" item-text="name"></FormsFieldsSelectComponent>
           </v-col>
-          <v-col :class="(selectedRule.rule.attributes.type=='before_to')?'col-6':'col-12'">
+          <v-col :class="(selectedRule.rule.type=='before_to')?'col-6':'col-12'">
             <formsFieldsTextComponent class="rounded-l-0" v-model="selectedRule.value" 
               :filled="selectedRule.rule.id==null" :label="`Valor${currencyValue}`"></formsFieldsTextComponent>
           </v-col>
@@ -23,7 +23,7 @@
           </v-col>
           <v-col class="col-6">
             <v-btn small depressed :disabled="!update" class="rounded-l-0" color="red" block height="55"
-              @click="removeRule()">
+              @click="removeRule(index)">
               <v-icon color="white">mdi-delete</v-icon>
             </v-btn>
           </v-col>
@@ -37,6 +37,10 @@
 <script>
   export default {
     props: {
+      index: {
+        type: Number,
+        required: true
+      },
       value: {
         type: Object,
         default: () => {
@@ -85,11 +89,14 @@
       },
       addRule() {
         this.$emit('input', JSON.parse(JSON.stringify(this.selectedRule)))
+      },
+      removeRule(index) {
+        this.$store.dispatch('zones/removeRule',index)
       }
     },
     computed: {
       currencyValue() {
-        switch (this.selectedRule.rule.attributes.subtype) {
+        switch (this.selectedRule.rule.subtype) {
           case 'days':
             return ' (En dias)'
             break

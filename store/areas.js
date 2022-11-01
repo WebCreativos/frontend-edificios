@@ -11,23 +11,46 @@ export const getters = {
 }
 
 export const actions = {
-  async find({ commit }) {
+  async find({
+    commit
+  },params = {}) {
+
+    if (params.filters) {
+      params.filters.building = this.$auth.user.building.id
+    } else {
+      params.filters = {
+        building: this.$auth.user.building.id
+      }
+    }
+
     const {
       data: data
-    } = await this.$axios.get(`/areas`,{
+    } = await this.$axios.get(`/areas`, {
       paramsSerializer: params => {
-        return qs.stringify(params,{arrayFormat: 'brackets'})
+        return qs.stringify(params, {
+          arrayFormat: 'brackets'
+        })
       }
     })
     commit('set', data)
   },
-  async add({commit},amenity) {
+  async add({
+    commit
+  }, amenity) {
+    var buldingId = this.$auth.user.building.id
     const {
       data: data
-    } = await this.$axios.post(`/areas`, amenity)
+    } = await this.$axios.post(`/areas`, {
+      data: {
+        ...amenity,
+        building: buldingId
+      }
+    })
     commit('setSingle', data)
   },
-  async delete({commit},id) {
+  async delete({
+    commit
+  }, id) {
     await this.$axios.delete(`/areas/${id}`)
     setTimeout(() => {
       commit('delete', id)

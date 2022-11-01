@@ -11,18 +11,15 @@
       </template>
     </headersGeneralComponent>
     <v-row>
+      <v-col class="col-md-12 col-12">
+        <propertiesListComponent elevation="6" title @changePage="search.pagination.page = $event" :data="data">
+        </propertiesListComponent>
+      </v-col>
+      <v-col class="col-md-7">
+        <cardsCashFlowComponent></cardsCashFlowComponent>
+      </v-col>
       <v-col class="col-md-5 col-12">
         <cardsAlquileresExpensasComponent></cardsAlquileresExpensasComponent>
-      </v-col>
-      <v-col class="col-md-7 col-12">
-        <cardsHabitantesComponent></cardsHabitantesComponent>
-      </v-col>
-      <v-col class="col-md-7 col-12">
-        <cardsPropertiesComponent elevation="6" title @changePage="search.pagination.page = $event" :data="data">
-        </cardsPropertiesComponent>
-      </v-col>
-      <v-col class="col-md-5">
-        <cardsCashFlowComponent></cardsCashFlowComponent>
       </v-col>
     </v-row>
   </v-container>
@@ -36,7 +33,8 @@
     },
     methods: {
       getProperties() {
-        this.$store.dispatch('apartments/findAll', {populate:'*'})
+        console.log("aca")
+        this.$store.dispatch('apartments/findAll', {populate:'*', pagination:{limit:5},sort:'id:desc'})
       },
     },
     computed: {

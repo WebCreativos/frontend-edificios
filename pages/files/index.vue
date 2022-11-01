@@ -31,7 +31,7 @@
                   <v-btn @click="showFormFiles = false" color="primary" class="rounded-lg">SALIR
                   </v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn @click="upload()" :disabled="newFilesUpload.data.length == 0"
+                  <v-btn @click="upload()" :disabled="newFilesUpload.length == 0"
                     color="secondary rounded-lg font-weight-regular">Subir archivos&nbsp;&nbsp;<v-icon>mdi-upload
                     </v-icon>
                   </v-btn>
@@ -44,7 +44,7 @@
               <v-col class="col-md-3 col-12" v-for="file in files" :key="file.id">
                 <v-card class="rounded-lg">
                   <v-card-title>
-                    <span v-if="file.attributes.name">{{file.attributes.name.substr(0,7)}}</span>
+                    <span v-if="file.name">{{file.name.substr(0,7)}}</span>
                     <v-spacer></v-spacer>
                     <v-btn fab x-small color="red" @click="deleteImg(file)">
                       <v-icon class="white--text">mdi-close</v-icon>
@@ -52,16 +52,16 @@
                   </v-card-title>
                   <v-divider></v-divider>
                   <v-card-text class="d-flex justify-center">
-                    <template v-if="checkIfImage(file.attributes)">
-                      <v-img :src="`https://forestapi.webcreativos.com.uy/`+file.attributes.url" width="100%" height="80" contain></v-img>
+                    <template v-if="checkIfImage(file)">
+                      <v-img :src="file.url" width="100%" height="80" contain></v-img>
                     </template>
                     <template v-else>
                       <v-icon size="80">mdi-file-outline</v-icon>
                     </template>
                   </v-card-text>
                   <v-divider></v-divider>
-                  <v-card-actions style="height:55" v-show="file.attributes.url">
-                    <v-btn block depressed :href="`https://forestapi.webcreativos.com.uy/`+file.attributes.url" target="_blank"
+                  <v-card-actions style="height:55" v-show="file.url">
+                    <v-btn block depressed :href="file.url" target="_blank"
                       class="rounded-lg" color="success darken-1">
                       VER ARCHIVO&nbsp;
                       <v-icon>mdi-magnify</v-icon>
@@ -97,9 +97,7 @@
         showFormFiles: false,
         files: [],
         newFilesSuccessModal: false,
-        newFilesUpload: {
-          data: []
-        }
+        newFilesUpload:[]
       }
     },
     mounted() {
@@ -109,14 +107,11 @@
       getFiles() {
         this.$axios.get('/upload/files')
           .then(response => {
-            this.files = response.data.map((f) => {
-              return {
-                attributes: f
-              }
-            })
+            this.files = response.data
           })
       },
       checkIfImage(file) {
+        console.log(file)
         const checkIfImage = function (file) {
           if (file.includes('image')) {
             return true
@@ -134,7 +129,7 @@
       deleteImg(file) {
         var confirm = window.confirm('Estas seguro que deseas eliminar este archivo?')
         if (confirm) {
-            this.$axios.delete('/upload/files/' + file.attributes.id)
+            this.$axios.delete('/upload/files/' + file.id)
             .then(()=>{
                 this.getFiles()
             })
@@ -145,8 +140,8 @@
         if (this.newFilesUpload.length == 0) return
         var form = new FormData()
         this.newFilesUpload.data.forEach((file) => {
-          if (file.attributes instanceof File) {
-            form.append(`files`, file.attributes, file.attributes.name);
+          if (file instanceof File) {
+            form.append(`files`, file, file.name);
           }
         });
         await this.$axios.post('/upload', form, {

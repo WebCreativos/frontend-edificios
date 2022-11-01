@@ -16,7 +16,7 @@
           <propertiesFormComponent></propertiesFormComponent>
         </v-col>
         <v-col class="col-12">
-          <ownersFormComponent></ownersFormComponent>
+          <OwnersFormComponent></OwnersFormComponent>
         </v-col>
         <v-col class="col-12" v-if="apartment.in_rent">
           <rentalsFormComponent></rentalsFormComponent>
@@ -38,31 +38,39 @@
       <v-col class="col-12 d-flex">
       </v-col>
     </v-row>
-    <generalBottomBarComponent>
-      <v-btn text-color="white" class="secondary black--text rounded-lg font-weight-regular"
-        @click="updateApartment()">
-        Guardar apartamento&nbsp;<v-icon>mdi-home</v-icon>
+    <generalBottomBarComponent :color="bottomBarColor" app>
+      <!-- create button previous step -->
+      <v-btn text-color="white" class="secondary black--text rounded-lg font-weight-regular" @click="updateApartment()">
+        Guardar apartamento
+        <v-icon>mdi-home</v-icon>
       </v-btn>
     </generalBottomBarComponent>
+    <v-snackbar v-model="errorInForm" color="red">
+      Hubo un error al guardar, por favor revise los datos e intente nuevamente
+      <v-btn text @click="errorInForm = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 
 <script>
   var qs = require('qs');
-  import {
-    mapFields
-  } from 'vuex-map-fields';
+  import updateApartmentsMixins from '~/plugins/mixins/forms/apartments/update.js'
+
   export default {
+    mixins: [updateApartmentsMixins],
     data() {
       return {
-        owner: {
-          in_property: false,
-        },
-        rental: {
-          habitant: {}
-        },
+        step: 1,
+        errorInForm: false,
       }
     },
+    created() {
+      //this.$store.dispatch("apartments/clear");
+      this.$store.dispatch("rentals/clearUser");
+    },
+
     mounted() {
       this.getApartment()
     },
@@ -71,55 +79,42 @@
         await this.$store.dispatch('apartments/find', {
           id: this.$route.params.id
         })
-        await this.$store.dispatch('habitants/find', {
+
+        const owner = await this.$store.dispatch('owners/find', {
           apartment: this.$route.params.id
         })
-        this.$store.dispatch('rentals/find', {
-          apartment: this.$route.params.id
+        this.$store.dispatch('owners/setUser', {
+          id: owner.user.id,
+          ...owner.user
         })
-        await this.$store.dispatch('owners/find', {
-          apartment: this.$route.params.id
-        })
+
         if (this.apartment.in_rent) {
-          await this.$store.dispatch('rentals/find', {
+          const rental = await this.$store.dispatch('rentals/find', {
             apartment: this.$route.params.id
+          })
+          this.$store.dispatch('rentals/setUser', {
+            id: rental.user.id,
+            ...rental.user
           })
         }
       },
       async updateApartment() {
-        if (!this.$refs.form.validate()) return
-        await this.$store.dispatch('apartments/update', this.files)
+        if (!this.$refs.form.validate()) {
+          this.errorInForm = true
+          return
+        }
+        await this.updateOwner()
+        if (this.apartment.in_rent) {
+          await this.updateRentals()
+        }
+        await this.$store.dispatch('apartments/update')
         //create owner
-        await this.$store.dispatch('owners/update')
-        this.upload()
+        if (this.apartment.in_rent) {}
+
+        await this.upload()
         this.$router.go(-1)
       },
-      async upload() {
-        if (this.files.length == 0) return
-        var form = new FormData()
-        form.append('ref', 'api::apartament.apartament')
-        form.append('refId', this.apartment.id)
-        form.append('field', 'files')
-        this.files.data.forEach((file) => {
-          if (file.attributes instanceof File) {
-            form.append(`files`, file.attributes, file.attributes.name);
-          }
-        });
-        await this.$axios.post('/upload', form, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-      },
 
-    },
-    computed: {
-      ...mapFields('apartments', [
-        'files',
-      ]),
-      apartment() {
-        return this.$store.getters['apartments/get']
-      }
     },
   }
 

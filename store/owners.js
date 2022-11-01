@@ -2,13 +2,20 @@ import {
   getField,
   updateField
 } from 'vuex-map-fields';
+import user from '../plugins/mixins/navigationMixin/user';
 var qs = require('qs');
 
 export const state = () => ({
   owner: {
-    doc: '',
+    user: null,
+    in_property: false,
+    apartment: 45,
+  },
+  user: {
     name: '',
-    in_property: false
+    doc: '',
+    username: '',
+    type: 'owner',
   },
   owners: []
 })
@@ -18,6 +25,9 @@ export const getters = {
   getField,
   get(state) {
     return state.owner
+  },
+  user(state) {
+    return state.user
   }
 }
 
@@ -26,6 +36,18 @@ export const actions = {
     state,
     commit
   }, params = {}) {
+    if (params.filters) {
+      params.filters.apartment = {
+        building: this.$auth.user.building.id
+      }
+    } else {
+      params.filters = {
+        apartment: {
+          building: this.$auth.user.building.id
+        }
+      }
+    }
+
     const {
       data: data
     } = await this.$axios.get('/owners', {
@@ -37,9 +59,9 @@ export const actions = {
     state,
     commit
   }, query) {
-    const {
+    var {
       data: data
-    } = await this.$axios.get(`/owners/`, {
+    } = await this.$axios.get(`/owners/?populate=user`, {
       params: {
         filters: query
       },
@@ -49,10 +71,20 @@ export const actions = {
         })
       }
     })
-    commit('set', {
-      ...data.data[0].attributes,
-      id: data.data[0].id
-    })
+    if (data.meta.pagination.total == 0) {
+      commit('set', {})
+      return {
+        user: {
+          data: {}
+        }
+      }
+    } else {
+      commit('set', {
+        ...data.data[0]
+      })
+      return data.data[0]
+
+    }
   },
   async create({
     state,
@@ -60,15 +92,12 @@ export const actions = {
     dispatch,
     getters,
     rootGetters
-  }, {
-    apartment
   }) {
     const {
       data: data
     } = await this.$axios.post('/owners', {
       data: {
         ...state.owner,
-        apartment: apartment.id
       }
     })
     return data
@@ -76,34 +105,32 @@ export const actions = {
   async update({
     state,
     commit
-  }, id) {
+  }, user) {
+
     const {
       data: data
     } = await this.$axios.put(`/owners/${state.owner.id}`, {
       data: state.owner
     })
-
-    if (state.owner.in_property) {
-      dispatch('habitants/set', {
-        name: state.owner.name,
-        doc: state.owner.doc,
-        apartment: apartment,
-        type: 'owner'
-      }, {
-        root: true
-      })
-      await dispatch('habitants/create', null, {
-        root: true
-      })
-    }
     commit('set', {
-      ...data.data.attributes,
-      id: data.data.id
+      ...data,
     })
   },
   async delete(id) {
     await this.$axios.delete(`/owners/${id}`)
   },
+
+  setUser({
+    commit
+  }, user) {
+    commit('setUser', user)
+  },
+  set({
+    commit
+  }, data) {
+    commit('set', data)
+  },
+
   clear({
     commit
   }) {
@@ -118,6 +145,16 @@ export const actions = {
 export const mutations = {
   updateField,
   set(state, data) {
-    state.owner = data
-  }
+    state.owner = {
+      ...state.owner,
+      ...data
+    }
+  },
+  setUser(state, data) {
+    state.user = {
+      ...state.user,
+      ...data
+    }
+  },
+
 }

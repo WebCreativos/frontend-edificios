@@ -7,21 +7,26 @@
     <v-card-text class="pa-md-6">
       <v-row>
         <v-col class="col-12">
-          <formsFieldsTextComponent prepend-inner-icon="mdi-numeric" type="number" v-model="number"
+          <formsFieldsTextComponent prepend-inner-icon="mdi-numeric" :readonly="readonly" :error-messages="errorApartmentExists"
+            @input="checkIfApartmentExists($event)" :rules="rules.required" type="number" v-model="number"
             label="Numero de apartamento">
           </formsFieldsTextComponent>
+          <!-- span error -->
+          <span v-if="errorApartmentExists.length>0" class="error--text">{{errorApartmentExists[0]}}</span>
         </v-col>
         <v-col class="col-4">
-          <formsFieldsTextComponent prepend-inner-icon="ion-ios-bed" v-model="rooms" type="number" label="Habitaciones">
+          <formsFieldsTextComponent prepend-inner-icon="ion-ios-bed" :rules="rules.required" v-model="rooms"
+            type="number" label="Habitaciones">
           </formsFieldsTextComponent>
         </v-col>
         <v-col class="col-4">
-          <formsFieldsTextComponent prepend-inner-icon="mdi-toilet" type="number" v-model="bathrooms" label="Banos">
+          <formsFieldsTextComponent prepend-inner-icon="mdi-toilet" :rules="rules.required" type="number"
+            v-model="bathrooms" label="Banos">
           </formsFieldsTextComponent>
         </v-col>
         <v-col class="col-4">
-          <formsFieldsTextComponent prepend-inner-icon="ion-md-expand" type="number" v-model="square_meters"
-            label="Metros cuadrados">
+          <formsFieldsTextComponent prepend-inner-icon="ion-md-expand"  :rules="rules.required" type="number"
+            v-model="square_meters" label="M²">
           </formsFieldsTextComponent>
         </v-col>
         <v-col class="col-12">
@@ -33,13 +38,13 @@
             <v-card-text>
               <v-row>
                 <v-col class="col-md-3">
-                  <formsFieldsSelectComponent :items="['USD','UYU']" value="USD" v-model="expenses_currency"
-                    label="Moneda">
+                  <formsFieldsSelectComponent :items="['USD','UYU']" :readonly="readonly" :rules="rules.required" value="USD"
+                    v-model="expenses_currency" label="Moneda">
                   </formsFieldsSelectComponent>
                 </v-col>
                 <v-col class="col-md-9">
-                  <formsFieldsTextComponent prepend-inner-icon="mdi-currency-usd" type="number" v-model="expenses_cost"
-                    label="Costo">
+                  <formsFieldsTextComponent prepend-inner-icon="mdi-currency-usd" :readonly="readonly" :rules="rules.required" type="number"
+                    v-model="expenses_cost" label="Costo">
                   </formsFieldsTextComponent>
                 </v-col>
               </v-row>
@@ -48,11 +53,11 @@
               <v-radio-group hide-details v-model="expenses_payment_method">
                 <v-row>
                   <v-col class="col-md-6">
-                    <formsFieldsRadioComponent value="Card" label="Tarjeta">
+                    <formsFieldsRadioComponent value="Card" :readonly="readonly" label="Tarjeta">
                     </formsFieldsRadioComponent>
                   </v-col>
                   <v-col class="col-md-6">
-                    <formsFieldsRadioComponent value="Cash" label="Efectivo">
+                    <formsFieldsRadioComponent value="Cash" :readonly="readonly" label="Efectivo">
                     </formsFieldsRadioComponent>
                   </v-col>
                 </v-row>
@@ -73,14 +78,14 @@
                 <v-chip filter active-class="primary" class="font-weight-bold text-uppercase" label
                   close-icon="cursor-pointer" :value="amenity.id" v-for="amenity in amenitiesList.data"
                   :key="'a'+amenity.id">
-                  {{amenity.attributes.name}}&nbsp;
+                  {{amenity.name}}&nbsp;
                 </v-chip>
               </v-chip-group>
             </v-card-text>
           </v-card>
         </v-col>
         <v-col class="col-12">
-          <v-card outlined class="rounded-lg">
+          <v-card outlined class="rounded-lg" v-if="readonly == false">
             <v-card-title class="text-subtitle-2 font-weight-regular">
               PROPIEDAD ALQUILADA
             </v-card-title>
@@ -113,14 +118,24 @@
     mapFields
   } from 'vuex-map-fields';
   export default {
+    props: {
+      readonly: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
+        rules: {
+          required: [value => !!value || 'Campo requerido'],
+        },
+        errorApartmentExists: [],
         selected: false,
       }
     },
     created() {
       this.getPropertyData()
-        this.$store.dispatch('amenities/find')
+      this.$store.dispatch('amenities/find')
     },
     methods: {
       async getPropertyData() {},
@@ -134,6 +149,10 @@
         } else {
           this.amenities.push(value);
         }
+      },
+      async checkIfApartmentExists(number) {
+        const exists = await this.$store.dispatch('apartments/checkIfExists', number)
+        this.errorApartmentExists = exists && !this.id ? ['Ya existe un apartamento con ese numero'] : []
       }
     },
     computed: {
@@ -142,6 +161,7 @@
       },
       ...mapFields('apartments', [
         'apartment.number',
+        'apartment.id',
         'apartment.rooms',
         'apartment.bathrooms',
         'apartment.square_meters',

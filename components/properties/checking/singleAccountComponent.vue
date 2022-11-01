@@ -1,22 +1,22 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title v-if="!readOnly">
       <v-row>
         <v-col class="col-md-10 col-12">
           <v-input>
             <v-row>
               <v-col class="col-md-6 col-12">
-                <FormsFieldsTextComponent :label="`Monto (${currency})`" v-model="newMoovment.amount" type="number"
+                <FormsFieldsTextComponent :label="`Monto (${currency})`" v-model="amount" type="number"
                   prepend-inner-icon="mdi-currency-usd"></FormsFieldsTextComponent>
 
               </v-col>
               <v-col class="col-md-6 col-12">
-                <FormsFieldsSelectComponent v-model="newMoovment.type" label="Tipo"
+                <FormsFieldsSelectComponent v-model="type" label="Tipo"
                   :items="[{value: 'deposit',text: 'Deposito' }, {value: 'withdrawal',text: 'Retiro'}]">
                 </FormsFieldsSelectComponent>
               </v-col>
               <v-col class="col-12">
-                <FormsFieldsTextComponent v-model="newMoovment.concept" placeholder="Opcional..." label="Concepto">
+                <FormsFieldsTextComponent v-model="concept" placeholder="Opcional..." label="Concepto">
                 </FormsFieldsTextComponent>
               </v-col>
             </v-row>
@@ -41,17 +41,17 @@
             <template v-for="(moovment,index) in moovments">
               <v-list-item :key="moovment.id">
                 <v-list-item-avatar color="primary">
-                  <v-icon color="green" v-if="moovment.attributes.type =='deposit'">mdi-arrow-right</v-icon>
+                  <v-icon color="green" v-if="moovment.type =='deposit'">mdi-arrow-right</v-icon>
                   <v-icon color="red" v-else>mdi-arrow-left</v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-subtitle class="font-weight-light black--text">
-                    <span v-if="moovment.attributes.concept">{{moovment.attributes.concept}}</span>
+                    <span v-if="moovment.concept">{{moovment.concept}}</span>
                     <span v-else>Sin concepto</span>
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action-text class="font-weight-bold text-subtitle-2 black--text">
-                  {{currency | currency}} {{moovment.attributes.amount}}
+                  {{currency | currency}} {{moovment.amount}}
                 </v-list-item-action-text>
               </v-list-item>
               <v-divider v-show="index!=moovments.length" :key="`d${moovment.id}`"></v-divider>
@@ -79,6 +79,10 @@
 </template>
 
 <script>
+  import {
+    mapFields
+  } from 'vuex-map-fields';
+
   export default {
     filters: {
       currency(value) {
@@ -89,6 +93,10 @@
       }
     },
     props: {
+      readOnly:{
+        type: Boolean,
+        default: false
+      },
       apartment: {
         type: Object,
         required: true
@@ -104,38 +112,35 @@
     },
     data() {
       return {
-        newMoovment: {
-          amount: 0,
-          type: 'deposit',
-          concept: ''
-        },
       }
     },
     methods: {
       addMoovment() {
-        this.$axios.post('/checking-accounts', {
-          data: {
-            ...this.newMoovment,
-            currency: this.currency,
-            apartment: this.apartment.id
-          }
-        }).then(response => {
-          this.newMoovment = {}
-          this.$emit('input', [...this.value, response.data.data])
+        this.$store.dispatch('checkingaccounts/add', {
+          apartment: this.apartment.id,
+          currency: this.currency,
         })
       },
-
     },
     computed: {
+
+      ...mapFields('checkingaccounts', [
+        'moovment.amount',
+        'moovment.type',
+        'moovment.concept',
+      ]),
+
       moovments() {
-        return this.value.filter(account => account.attributes.currency === this.currency)
+        if(Array.isArray(this.value))
+          return this.value.filter(account => account.currency === this.currency)
+        return []
       },
       total() {
         return this.moovments.reduce((total, moovment) => {
-          if (moovment.attributes.type === 'deposit') {
-            return total + moovment.attributes.amount
+          if (moovment.type === 'deposit') {
+            return total + moovment.amount
           } else {
-            return total - moovment.attributes.amount
+            return total - moovment.amount
           }
         }, 0)
       },

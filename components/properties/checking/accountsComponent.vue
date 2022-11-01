@@ -13,11 +13,11 @@
     </v-card-title>
     <v-tabs-items v-model="tab">
       <v-tab-item :value="0">
-        <propertiesCheckingSingleAccountComponent v-model="accounts" :apartment="apartment" currency="USD">
+        <propertiesCheckingSingleAccountComponent v-model="accounts" :readOnly="readOnly" :apartment="apartment" currency="USD">
         </propertiesCheckingSingleAccountComponent>
       </v-tab-item>
       <v-tab-item :value="1">
-        <propertiesCheckingSingleAccountComponent v-model="accounts" :apartment="apartment" currency="UYU">
+        <propertiesCheckingSingleAccountComponent v-model="accounts" :readOnly="readOnly" :apartment="apartment" currency="UYU">
         </propertiesCheckingSingleAccountComponent>
       </v-tab-item>
     </v-tabs-items>
@@ -25,8 +25,13 @@
 </template>
 
 <script>
+  import qs from 'qs'
   export default {
     props: {
+      readOnly:{
+        type: Boolean,
+        default: false
+      },
       apartment: {
         type: Object,
         default: {}
@@ -35,40 +40,23 @@
     data() {
       return {
         tab: 0,
-        checkingAccountNumber: '',
-        checkingAccountBank: '',
-        checkingAccountNumberUYU: '',
-        checkingAccountBankUYU: '',
         rules: [
           (v) => !!v || 'Campo requerido',
         ],
-        accounts: [],
-        uyuAccountExist: false,
-        usdAccountExist: false,
       }
     },
     created() {
-      this.getAccounts()
+      this.$store.dispatch('checkingaccounts/findAll',{
+        filters:{
+          apartment: this.apartment.id
+        }
+      })
     },
-    methods: {
-      getAccounts() {
-        this.$axios.get('/checking-accounts', {
-          params: {
-            filters: {
-              apartment: this.apartment.id
-            }
-          },
-          paramsSerializer: params => {
-            return qs.stringify(params, {
-              arrayFormat: 'brackets'
-            })
-          }
-        }).then(response => {
-          this.accounts = response.data.data
-        })
-      },
+    computed: {
+      accounts() {
+        return this.$store.getters['checkingaccounts/getList']
+      }
     },
-    computed: {},
   }
 
 </script>

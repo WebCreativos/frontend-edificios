@@ -9,6 +9,13 @@ export const state = () => ({
     warranty_type: '',
     start_date: '',
     end_date: '',
+    user: null,
+  },
+  user: {
+    name: '',
+    doc: '',
+    username: '',
+    type: 'tenant',
   },
   tenants: {
     data: [],
@@ -24,6 +31,12 @@ export const getters = {
     return state.tenants
 
   },
+  user(state) {
+    return state.user
+  },
+  get(state) {
+    return state.rental
+  },
   getField
 }
 
@@ -31,6 +44,7 @@ export const actions = {
   async findAll({
     commit
   }, params = {}) {
+
     const {
       data: data
     } = await this.$axios.get('/rentals', {
@@ -48,7 +62,7 @@ export const actions = {
   }, query) {
     const {
       data: data
-    } = await this.$axios.get(`/rentals/`, {
+    } = await this.$axios.get(`/rentals/?populate=user`, {
       params: {
         filters: query
       },
@@ -58,18 +72,31 @@ export const actions = {
         })
       }
     })
-    commit('set', {
-      ...data.data[0].attributes,
-      id: data.data[0].id
-    })
+
+
+    if (data.meta.pagination.total > 0) {
+      if (data.data[0].user == null) {
+        data.data[0].user = {}
+      }
+      commit('set', {
+        ...data.data[0]
+      })
+      return data.data[0]
+
+    } else {
+      return {
+        user: {
+          data: {}
+        }
+      }
+    }
   },
   async create({
     dispatch,
     state,
     rootGetters,
     commit
-  }) {
-
+  }, user) {
     const {
       data: data
     } = await this.$axios.post('/rentals', {
@@ -89,13 +116,25 @@ export const actions = {
       data: state.rental
     })
     commit('set', {
-      ...data.data.attributes,
+      ...data,
       id: data.data.id
     })
   },
   async delete(id) {
     await this.$axios.delete(`/rentals/${id}`)
   },
+
+  setUser({
+    commit
+  }, user) {
+    commit('setUser', user)
+  },
+  clearUser({
+    commit
+  }, user) {
+    commit('clearUser', user)
+  },
+
   clear({
     commit
   }) {
@@ -120,6 +159,21 @@ export const mutations = {
       ...data
     }
   },
+  setUser(state, data) {
+    state.user = {
+      ...state.user,
+      ...data
+    }
+  },
+  clearUser(state, data) {
+    state.user = {
+      name: '',
+      doc: '',
+      username: '',
+      type: 'tenant',
+    }
+  },
+
   setList(state, data) {
     state.tenants = data
   }

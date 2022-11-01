@@ -46,11 +46,22 @@ export const actions = {
         })
       }
     })
-    commit('set', data.data[0].attributes)
+    commit('set', data.data[0])
   },
   async findAll({
     commit
-  }, params) {
+  }, params = {}) {
+    if (params.filters) {
+      params.filters = {
+        building: this.$auth.user.building.id
+      }
+    } else {
+      params.filters = {
+          building: this.$auth.user.building.id
+      }
+    }
+
+
     const {
       data: data
     } = await this.$axios.get('/payments', {
@@ -71,10 +82,13 @@ export const actions = {
     const {
       data: data
     } = await this.$axios.post(`/payments`, {
-      data: state.payment
+      data: {
+        ...state.payment,
+        building: this.$auth.user.building.id
+      }
     })
     commit('set', {
-      ...data.data.attributes,
+      ...data.data,
       id: data.data.id
     })
     dispatch('clear')
@@ -106,7 +120,16 @@ export const actions = {
   clear({
     commit
   }) {
-    commit('set', {})
+    commit('set',  {
+      type: 'expenses',
+      amount: 0,
+      status: 'pending',
+      currency: 'USD',
+      address: '',
+      comments: '',
+      name: '',
+      doc: '',
+    })
   },
   generateInvoice({state},data) {
     let invoice = JSON.parse(JSON.stringify(data));

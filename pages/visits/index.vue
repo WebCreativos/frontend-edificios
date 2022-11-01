@@ -21,14 +21,8 @@
             }
         },
         created() {
-            this.getVisits()
         },
         methods:{
-            getVisits() {
-                this.$axios.get('/visits/').then(response => {
-                    this.items = response.data
-                })
-            }
         }
     }
 </script>

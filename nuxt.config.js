@@ -54,14 +54,15 @@ export default {
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
-    'portal-vue/nuxt'
+    'portal-vue/nuxt',
+    '@nuxtjs/auth',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: 'https://forestapi.webcreativos.com.uy/api',
-    //baseURL: 'http://localhost:1337/api',
+    //baseURL: 'https://backlog.gestus360.com/api',
+    baseURL:'http://localhost:1337/api',
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -70,7 +71,35 @@ export default {
       lang: 'en'
     }
   },
-
+  // nuxt auth module 
+  auth: {
+    autoLogout: true,
+    localStorage: false,
+    strategies: {
+      local: {
+        endpoints: {
+          login: {
+            url: "/auth/local/",
+            method: "post",
+            propertyName: "jwt"
+          },
+          logout: false,
+          user: {
+            url: "/users/me/?populate=*",
+            method: "get",
+            propertyName: false
+          },
+        },
+        tokenRequired: true,
+        tokenType: "Bearer"
+      }
+    },
+    redirect: {
+      login: "/",
+      logout: "/accounts/login",
+      home: "/"
+    }
+  },
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
